@@ -17,6 +17,7 @@ interface DataInterface {
 	lado: string;
 	cama: string;
 	date: string;
+	barCode: string;
 }
 
 const BarcodeGenerator: React.FC = () => {
@@ -41,7 +42,6 @@ const BarcodeGenerator: React.FC = () => {
 		hasError: false,
 		message: "",
 	});
-
 	const [barcodeValue, setBarcodeValue] = useState("");
 
 	const handleChange = (
@@ -110,14 +110,15 @@ const BarcodeGenerator: React.FC = () => {
 		setDateValue(newDate);
 	}, []);
 
-	const saveData = () => {
+	const saveData = (barcodeValue: string) => {
 		const register: DataInterface = {
 			id: uuidv4(),
 			bloque: bloqueValue,
 			nave: naveValue,
 			lado: ladoValue,
 			cama: camaValue,
-			date: dateValue.toString(),
+			date: dateValue,
+			barCode: barcodeValue,
 		};
 		try {
 			const storedData = localStorage.getItem("registers");
@@ -129,6 +130,8 @@ const BarcodeGenerator: React.FC = () => {
 				title: "Registro Guardado",
 				text: `Se ha guardado correctamente el registro de: ${barcodeValue}`,
 			});
+			// Limpiar valores solo después de guardar
+			clearFields();
 		} catch (error) {
 			console.log(error);
 			Swal.fire({
@@ -139,20 +142,29 @@ const BarcodeGenerator: React.FC = () => {
 		}
 	};
 
+	const clearFields = () => {
+		setBloqueValue("");
+		setNaveValue("");
+		setLadoValue("");
+		setCamaValue("");
+		setDateValue("");
+		setBarcodeValue("");
+	};
+
 	const generateBarcode = () => {
 		const hasError = validateField();
 		if (!hasError) {
-			setBarcodeValue(
-				`${bloqueValue}-${naveValue}-${ladoValue}-${camaValue}-${dateValue}`
-			);
-			saveData();
-			setBloqueValue("");
-			setNaveValue("");
-			setLadoValue("");
-			setCamaValue("");
-			setDateValue("");
+			const newBarcodeValue = `${bloqueValue}-${naveValue}-${ladoValue}-${camaValue}-${dateValue}`;
+			setBarcodeValue(newBarcodeValue);
 		}
 	};
+
+	useEffect(() => {
+		if (barcodeValue) {
+			saveData(barcodeValue);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [barcodeValue]);
 
 	const downloadBarcode = () => {
 		const element = document.getElementById("barcode");
@@ -160,7 +172,7 @@ const BarcodeGenerator: React.FC = () => {
 			html2canvas(element).then((canvas) => {
 				const link = document.createElement("a");
 				link.href = canvas.toDataURL("image/png");
-				link.download = "codigo_de_barras.png";
+				link.download = `codigo_de_barras_${barcodeValue}.png`;
 				link.click();
 			});
 		}
