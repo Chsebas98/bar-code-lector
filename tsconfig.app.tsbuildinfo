@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/application/components/barcodegenerator.tsx","./src/application/components/barcodereader.tsx","./src/application/components/excelhandler.tsx","./src/application/pages/homepage.tsx","./src/application/pages/previousregisterspage.tsx","./src/interfaces/interfaces.tsx"],"version":"5.6.3"}

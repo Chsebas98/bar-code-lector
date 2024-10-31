@@ -4,29 +4,20 @@ import { Form, Button } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import Swal from "sweetalert2";
 import html2canvas from "html2canvas";
-
-interface ErrorInterface {
-	hasError: boolean;
-	message: string;
-}
-
-interface DataInterface {
-	id: string;
-	bloque: string;
-	nave: string;
-	lado: string;
-	cama: string;
-	date: string;
-	barCode: string;
-}
+import { DataInterface, ErrorInterface } from "../../interfaces/interfaces";
 
 const BarcodeGenerator: React.FC = () => {
+	const [variedadValue, setVariedad] = useState("");
 	const [bloqueValue, setBloqueValue] = useState("");
-	const [naveValue, setNaveValue] = useState("");
 	const [ladoValue, setLadoValue] = useState("");
+	const [naveValue, setNaveValue] = useState("");
 	const [camaValue, setCamaValue] = useState("");
 	const [dateValue, setDateValue] = useState("");
 	const [bloqueValueError, setBloqueValueError] = useState<ErrorInterface>({
+		hasError: false,
+		message: "",
+	});
+	const [variedadError, setVariedadError] = useState<ErrorInterface>({
 		hasError: false,
 		message: "",
 	});
@@ -54,6 +45,10 @@ const BarcodeGenerator: React.FC = () => {
 				setBloqueValueError({ hasError: false, message: "" });
 				setBloqueValue(value);
 				break;
+			case "variedad":
+				setVariedadError({ hasError: false, message: "" });
+				setVariedad(value);
+				break;
 			case "nave":
 				setNaveValueError({ hasError: false, message: "" });
 				setNaveValue(value);
@@ -79,6 +74,10 @@ const BarcodeGenerator: React.FC = () => {
 		if (bloqueValue === "") {
 			hasError = true;
 			setBloqueValueError({ hasError: true, message: "El bloque es requerido" });
+		}
+		if (variedadValue === "") {
+			hasError = true;
+			setVariedadError({ hasError: true, message: "La variedad es requerida" });
 		}
 		if (naveValue === "") {
 			hasError = true;
@@ -113,9 +112,10 @@ const BarcodeGenerator: React.FC = () => {
 	const saveData = (barcodeValue: string) => {
 		const register: DataInterface = {
 			id: uuidv4(),
+			variedad: variedadValue,
 			bloque: bloqueValue,
-			nave: naveValue,
 			lado: ladoValue,
+			nave: naveValue,
 			cama: camaValue,
 			date: dateValue,
 			barCode: barcodeValue,
@@ -130,8 +130,7 @@ const BarcodeGenerator: React.FC = () => {
 				title: "Registro Guardado",
 				text: `Se ha guardado correctamente el registro de: ${barcodeValue}`,
 			});
-			// Limpiar valores solo después de guardar
-			clearFields();
+			//clearFields();
 		} catch (error) {
 			console.log(error);
 			Swal.fire({
@@ -144,17 +143,20 @@ const BarcodeGenerator: React.FC = () => {
 
 	const clearFields = () => {
 		setBloqueValue("");
+		setVariedad("");
 		setNaveValue("");
 		setLadoValue("");
 		setCamaValue("");
-		setDateValue("");
+		const date = new Date();
+		const newDate: string = formatDate(date);
+		setDateValue(newDate);
 		setBarcodeValue("");
 	};
 
 	const generateBarcode = () => {
 		const hasError = validateField();
 		if (!hasError) {
-			const newBarcodeValue = `${bloqueValue}-${naveValue}-${ladoValue}-${camaValue}-${dateValue}`;
+			const newBarcodeValue = `${variedadValue}-${bloqueValue}-${ladoValue}-${naveValue}-${camaValue}-${dateValue}`;
 			setBarcodeValue(newBarcodeValue);
 		}
 	};
@@ -180,11 +182,32 @@ const BarcodeGenerator: React.FC = () => {
 
 	return (
 		<div>
+			<div className="d-flex justify-content-end">
+				<Button variant="success" onClick={clearFields}>
+					Nuevo Registro
+				</Button>
+			</div>
 			<Form.Group controlId="formBasicInput">
+				<Form.Label>Variedad</Form.Label>
+				<Form.Control
+					type="text"
+					placeholder="Ingrese la variedad"
+					autoComplete="off"
+					value={variedadValue}
+					onChange={(e) =>
+						handleChange(e as React.ChangeEvent<HTMLInputElement>, "variedad")
+					}
+				/>
+				{variedadError.hasError && (
+					<div className="text-end">
+						<span className="text-danger">{variedadError.message}</span>
+					</div>
+				)}
+				<br />
 				<Form.Label>Bloque de cosecha</Form.Label>
 				<Form.Control
 					type="text"
-					placeholder="Bloque de cosecha"
+					placeholder="Ingrese el bloque de cosecha"
 					autoComplete="off"
 					value={bloqueValue}
 					onChange={(e) =>
@@ -192,27 +215,15 @@ const BarcodeGenerator: React.FC = () => {
 					}
 				/>
 				{bloqueValueError.hasError && (
-					<span className="text-danger">{bloqueValueError.message}</span>
-				)}
-				<br />
-				<Form.Label>Nave</Form.Label>
-				<Form.Control
-					type="text"
-					placeholder="Nave"
-					autoComplete="off"
-					value={naveValue}
-					onChange={(e) =>
-						handleChange(e as React.ChangeEvent<HTMLInputElement>, "nave")
-					}
-				/>
-				{naveValueError.hasError && (
-					<span className="text-danger">{naveValueError.message}</span>
+					<div className="text-end">
+						<span className="text-danger">{bloqueValueError.message}</span>
+					</div>
 				)}
 				<br />
 				<Form.Label>Lado</Form.Label>
 				<Form.Control
 					type="text"
-					placeholder="Lado"
+					placeholder="Ingrese el lado"
 					autoComplete="off"
 					value={ladoValue}
 					onChange={(e) =>
@@ -220,13 +231,32 @@ const BarcodeGenerator: React.FC = () => {
 					}
 				/>
 				{ladoValueError.hasError && (
-					<span className="text-danger">{ladoValueError.message}</span>
+					<div className="text-end">
+						<span className="text-danger">{ladoValueError.message}</span>
+					</div>
+				)}
+				<br />
+				<Form.Label>Nave</Form.Label>
+				<Form.Control
+					type="text"
+					color="info"
+					placeholder="Ingrese la nave"
+					autoComplete="off"
+					value={naveValue}
+					onChange={(e) =>
+						handleChange(e as React.ChangeEvent<HTMLInputElement>, "nave")
+					}
+				/>
+				{naveValueError.hasError && (
+					<div className="text-end">
+						<span className="text-danger">{naveValueError.message}</span>
+					</div>
 				)}
 				<br />
 				<Form.Label>Cama</Form.Label>
 				<Form.Control
 					type="text"
-					placeholder="Cama"
+					placeholder="Ingrese la cama"
 					autoComplete="off"
 					value={camaValue}
 					onChange={(e) =>
@@ -234,7 +264,9 @@ const BarcodeGenerator: React.FC = () => {
 					}
 				/>
 				{camaValueError.hasError && (
-					<span className="text-danger">{camaValueError.message}</span>
+					<div className="text-end">
+						<span className="text-danger">{camaValueError.message}</span>
+					</div>
 				)}
 				<br />
 				<Form.Label>Fecha de cosecha</Form.Label>
@@ -248,12 +280,12 @@ const BarcodeGenerator: React.FC = () => {
 					}
 				/>
 			</Form.Group>
-			<div className="my-4 d-flex align-items-center justify-content-evenly">
+			<div className="my-4 d-flex flex-column flex-sm-row align-items-center justify-content-evenly">
 				<Button variant="primary" onClick={generateBarcode}>
 					Generar Código de Barras
 				</Button>
 				{barcodeValue && (
-					<Button variant="secondary" onClick={downloadBarcode} className="ml-2">
+					<Button variant="secondary" onClick={downloadBarcode} className="my-2">
 						Descargar Código de Barras
 					</Button>
 				)}

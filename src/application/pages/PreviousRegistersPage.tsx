@@ -3,16 +3,7 @@ import { Container, Button, Table } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import html2canvas from "html2canvas";
 import Barcode from "react-barcode";
-
-interface DataInterface {
-	id: string;
-	bloque: string;
-	nave: string;
-	lado: string;
-	cama: string;
-	date: string;
-	barCode: string;
-}
+import { DataInterface } from "../../interfaces/interfaces";
 
 const PreviousRegisters: React.FC = () => {
 	const navigate = useNavigate();
@@ -60,14 +51,15 @@ const PreviousRegisters: React.FC = () => {
 					<Table striped bordered hover>
 						<thead>
 							<tr>
-								<th>N°</th>
-								<th>Identificador único</th>
-								<th>Bloque</th>
-								<th>Nave</th>
-								<th>Lado</th>
-								<th>Cama</th>
-								<th>Fecha</th>
-								<th>Código de Barras</th>
+								<th className="text-center">N°</th>
+								<th className="text-center">Identificador</th>
+								<th className="text-center">Variedad</th>
+								<th className="text-center">Bloque</th>
+								<th className="text-center">Nave</th>
+								<th className="text-center">Lado</th>
+								<th className="text-center">Cama</th>
+								<th className="text-center">Fecha</th>
+								<th className="text-center">Código de Barras</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -76,9 +68,10 @@ const PreviousRegisters: React.FC = () => {
 									<tr key={index}>
 										<td>{index + 1}</td>
 										<td>{register.id}</td>
+										<td>{register.variedad}</td>
 										<td>{register.bloque}</td>
-										<td>{register.nave}</td>
 										<td>{register.lado}</td>
+										<td>{register.nave}</td>
 										<td>{register.cama}</td>
 										<td>{register.date}</td>
 										<td>
@@ -100,7 +93,7 @@ const PreviousRegisters: React.FC = () => {
 								))
 							) : (
 								<tr>
-									<td colSpan={8} className="text-center">
+									<td colSpan={9} className="text-center">
 										No existen registros previos en este momento
 									</td>
 								</tr>

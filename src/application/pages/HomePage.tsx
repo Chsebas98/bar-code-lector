@@ -1,8 +1,6 @@
 import React from "react";
 import { Container, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import BarcodeReader from "../components/BarCodeReader";
-import ExcelHandler from "../components/ExcelHandler";
 import BarcodeGenerator from "../components/BarCodeGenerator";
 
 const HomePage: React.FC = () => {
@@ -19,8 +17,6 @@ const HomePage: React.FC = () => {
 				</Button>
 			</div>
 			<BarcodeGenerator />
-			<BarcodeReader />
-			<ExcelHandler />
 		</Container>
 	);
 };
